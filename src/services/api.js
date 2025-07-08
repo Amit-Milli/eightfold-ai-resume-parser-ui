@@ -57,7 +57,10 @@ export const uploadResume = async (file, jobId, candidateEmail) => {
     formData.append('jobId', jobId);
     formData.append('candidateEmail', candidateEmail);
 
-    return axios.post( `${API_BASE_URL}/resume/upload`, formData, {
+    return api.post('/resume/upload', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
         timeout: config.uploadTimeout,
     });
 };
