@@ -6,9 +6,6 @@ const API_BASE_URL = config.apiUrl;
 
 const api = axios.create({
     baseURL: API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
     timeout: config.defaultTimeout,
 });
 
@@ -52,17 +49,33 @@ api.interceptors.response.use(
 
 // Resume Upload API - Updated for serverless backend
 export const uploadResume = async (file, jobId, candidateEmail) => {
-    const formData = new FormData();
-    formData.append('resume', file);
-    formData.append('jobId', jobId);
-    formData.append('candidateEmail', candidateEmail);
-
-    return api.post('/resume/upload', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-        timeout: config.uploadTimeout,
+  // Read the file as base64
+  const toBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        // Remove the data:application/pdf;base64, prefix
+        const base64 = reader.result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = (error) => reject(error);
     });
+  };
+
+  const base64File = await toBase64(file);
+
+  const data = {
+    file: base64File,
+    fileName: file.name,
+    jobId,
+    candidateEmail,
+  };
+
+  return api.post('/resume/upload', data, {
+    headers: { 'Content-Type': 'application/json' },
+    timeout: config.uploadTimeout,
+  });
 };
 
 // Job Management API - Updated for serverless backend
@@ -71,7 +84,9 @@ export const getJobs = async () => {
 };
 
 export const createJob = async (jobData) => {
-    return api.post('/jobs', jobData);
+    return api.post('/jobs', jobData, {
+        headers: { 'Content-Type': 'application/json' }
+      });
 };
 
 export const getJob = async (jobId) => {
@@ -79,7 +94,9 @@ export const getJob = async (jobId) => {
 };
 
 export const updateJob = async (jobId, jobData) => {
-    return api.put(`/jobs/${jobId}`, jobData);
+    return api.put(`/jobs/${jobId}`, jobData, {
+        headers: { 'Content-Type': 'application/json' }
+      });
 };
 
 export const deleteJob = async (jobId) => {
