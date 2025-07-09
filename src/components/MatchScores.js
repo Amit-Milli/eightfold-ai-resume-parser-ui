@@ -32,7 +32,6 @@ import {
     Work,
     Star,
     Warning,
-    Error
 } from '@mui/icons-material';
 import { 
     getAllMatchScores, 
@@ -46,7 +45,6 @@ import config from '../config/api.config';
 const MatchScores = () => {
     const [matchScores, setMatchScores] = useState([]);
     const [jobs, setJobs] = useState([]);
-    const [resumes, setResumes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [backendAvailable, setBackendAvailable] = useState(true);
     const [page, setPage] = useState(0);
@@ -177,18 +175,8 @@ const MatchScores = () => {
             const matchesSearch = !searchTerm ||
                 match.jobTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 match.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                match.candidateName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                match.resume?.candidateEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 match.resumeFileName?.toLowerCase().includes(searchTerm.toLowerCase());
-            
-            console.log('Filtering match:', {
-                id: match.id,
-                candidateName: match.candidateName,
-                jobTitle: match.jobTitle,
-                matchesJob,
-                matchesSearch,
-                overallScore: match.overallScore
-            });
-            
             return matchesJob && matchesSearch;
         })
         .sort((a, b) => {
@@ -206,8 +194,8 @@ const MatchScores = () => {
                 case 'jobTitle':
                     comparison = (a.jobTitle || '').localeCompare(b.jobTitle || '');
                     break;
-                case 'candidateName':
-                    comparison = (a.candidateName || '').localeCompare(b.candidateName || '');
+                case 'candidateEmail':
+                    comparison = (a.resume?.candidateEmail || '').localeCompare(b.resume?.candidateEmail || '');
                     break;
                 case 'scoredAt':
                     comparison = new Date(a.scoredAt || 0) - new Date(b.scoredAt || 0);
@@ -373,7 +361,7 @@ const MatchScores = () => {
                                     <MenuItem value="technicalMatch">Technical Match</MenuItem>
                                     <MenuItem value="experienceMatch">Experience Match</MenuItem>
                                     <MenuItem value="jobTitle">Job Title</MenuItem>
-                                    <MenuItem value="candidateName">Candidate Name</MenuItem>
+                                    <MenuItem value="candidateEmail">Candidate Email</MenuItem>
                                     <MenuItem value="scoredAt">Score Date</MenuItem>
                                 </Select>
                             </FormControl>
@@ -409,7 +397,7 @@ const MatchScores = () => {
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell>Candidate</TableCell>
+                                            <TableCell>Candidate Email</TableCell>
                                             <TableCell>Job Position</TableCell>
                                             <TableCell>Overall Score</TableCell>
                                             <TableCell>Technical Match</TableCell>
@@ -426,7 +414,7 @@ const MatchScores = () => {
                                                     <TableCell>
                                                         <Box>
                                                             <Typography variant="subtitle2">
-                                                                {match.candidateName || 'Unknown'}
+                                                                {match.resume?.candidateEmail || 'Unknown'}
                                                             </Typography>
                                                             <Typography variant="caption" color="text.secondary">
                                                                 {match.resumeFileName || 'No file'}

@@ -79,6 +79,7 @@ const ResumeUpload = () => {
         if (file && file.type === 'application/pdf') {
             setSelectedFile(file);
             setMessage({ type: 'success', text: `Selected: ${file.name}` });
+            event.target.value = null;
         } else {
             setMessage({ type: 'error', text: 'Please select a valid PDF file' });
         }

@@ -32,6 +32,7 @@ import {
 } from '@mui/icons-material';
 import { getJobs, createJob, mockJobs, checkBackendHealth } from '../services/api';
 import config from '../config/api.config';
+import IsLargeTextForDBInsert from '../utils/helper';
 
 const JobList = () => {
     const [jobs, setJobs] = useState([]);
@@ -92,6 +93,11 @@ const JobList = () => {
     const handleCreateJob = async () => {
         try {
             const requirements = newJob.requirements.split(',').map(req => req.trim()).filter(req => req);
+            const isTooLargeText = IsLargeTextForDBInsert(newJob.description);
+            if (isTooLargeText) {
+                showSnackbar('Job description is too large for database operation, aborting job creation', 'warning');
+                return;
+            }
             const jobData = {
                 title: newJob.title,
                 company: newJob.company,
